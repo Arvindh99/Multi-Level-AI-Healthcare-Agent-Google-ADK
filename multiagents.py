@@ -89,40 +89,14 @@ pipeline_agent = SequentialAgent(
 
 
 # Runner
-# runner = InMemoryRunner(agent=pipeline_agent)
+runner = InMemoryRunner(agent=pipeline_agent)
 
-# async def main(): 
-#     try: 
-#         response = await runner.run_debug( "I have been experiencing headaches and dizziness for the past week." ) 
-#         print("Agent Response:", response.text) 
-#     except Exception as e: 
-#         print("Agent analysis completed and closed") 
+async def main(): 
+    try: 
+        response = await runner.run_debug( "I have been experiencing headaches and dizziness for the past week." ) 
+        print("Agent Response:", response.text) 
+    except Exception as e: 
+        print("Agent analysis completed and closed") 
 
-# if __name__ == "__main__": 
-#     asyncio.run(main())
-
-def run_pipeline(user_input: str) -> str:
-    """
-    Run the SequentialAgent pipeline and return concatenated responses.
-    """
-    try:
-        runner = InMemoryRunner(agent=pipeline_agent)
-        response = asyncio.run(runner.run_debug(user_input))
-    except Exception as e:
-        return f"An error occurred: {e}"
-
-
-st.title("🩺 AI Medical Assistant")
-st.write("Enter your symptoms and let the AI suggest possible diagnoses, relevant specialties, and diagnostic tests.")
-
-symptoms_input = st.text_area("Describe your symptoms:", height=150)
-
-if st.button("Submit"):
-    if not symptoms_input:
-        st.warning("Please describe your symptoms to proceed.")
-    else:
-        st.info("Running analysis, please wait...")
-        user_input = symptoms_input
-        # response_text = run_pipeline(user_input)
-        st.subheader("AI Analysis")
-        st.write(run_pipeline(user_input))
+if __name__ == "__main__": 
+    asyncio.run(main())
