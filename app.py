@@ -15,7 +15,7 @@ from google.genai import types
 #GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 st.set_page_config(page_title="AI Medical Assistant",page_icon="🩺",layout="wide")
 
-GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
+GOOGLE_API_KEY = st.secrets["api_keys"]
 
 if not GOOGLE_API_KEY:
     raise ValueError("API_KEY not found!")
