@@ -2,7 +2,7 @@ import os
 import uuid
 import time
 import asyncio
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 import streamlit as st
 
 from google.adk.agents import LlmAgent, SequentialAgent
@@ -11,11 +11,14 @@ from google.adk.runners import InMemoryRunner
 from google.genai import types
 
 
-load_dotenv()
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+#load_dotenv()
+#GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+st.set_page_config(page_title="AI Medical Assistant",page_icon="🩺",layout="wide")
+
+GOOGLE_API_KEY = st.secrets["api_keys"]["GOOGLE_API_KEY"]
 
 if not GOOGLE_API_KEY:
-    raise ValueError("API_KEY not found! Add it to your .env file.")
+    raise ValueError("API_KEY not found!")
 
 # Retry configuration
 retry_config = types.HttpRetryOptions(attempts=3,exp_base=7,initial_delay=1,http_status_codes=[500, 429, 503, 504])
@@ -110,8 +113,6 @@ def run_pipeline(user_input: str) -> str:
 
 
 # Streamlit App UI
-
-st.set_page_config(page_title="AI Medical Assistant",page_icon="🩺",layout="wide")
 
 st.title("🩺 AI Medical Assistant")
 
