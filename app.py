@@ -67,6 +67,7 @@ format_agent = LlmAgent(model=gemini_model,name="format_agent",
         - Bullet lists\n
         - Tables\n
         - Clear sections (Symptoms, Diagnoses, Specialties, Tests)\n\n
+        Add a friendly closing note saying "This is AI generated summary to assist you. Please consult a healthcare professional for accurate diagnosis and treatment.\n
         This is the ONLY user-facing output. The earlier agents should remain silent."""),
     output_key="final_response")
 
@@ -78,25 +79,30 @@ pipeline_agent = SequentialAgent(name="AgentPipeline",sub_agents=[intake_agent,d
 
 def run_pipeline(user_input: str) -> str:
     """
-    Run the SequentialAgent pipeline and extract text from ADK Event objects.
+    Run the SequentialAgent pipeline and extract ONLY the final
+    formatted text from the format_agent's Event.
     """
     try:
         runner = InMemoryRunner(agent=pipeline_agent)
         events = asyncio.run(runner.run_debug(user_input))
 
-        output_text = ""
+        final_output = None  # store only format_agent output
 
         for event in events:
-            content = getattr(event, "content", None)
-            if not content:
-                continue
+            # Check agent author
+            if getattr(event, "author", None) == "format_agent":
 
-            if content.role == "model":
-                for part in content.parts:
-                    if hasattr(part, "text") and part.text:
-                        output_text += part.text + "\n"
+                # Prefer to read from state_delta → final_response
+                if event.actions and event.actions.state_delta:
+                    final_output = event.actions.state_delta.get("final_response")
 
-        return output_text.strip() if output_text else "No response generated."
+                # Backup: read from event content
+                if not final_output and hasattr(event, "content") and event.content:
+                    for part in event.content.parts:
+                        if hasattr(part, "text"):
+                            final_output = part.text
+
+        return final_output.strip() if final_output else "No final summary generated."
 
     except Exception as e:
         return f"Error occurred: {e}"
